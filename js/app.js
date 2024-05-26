@@ -6,11 +6,13 @@ const SMILE = '😀'
 const LOSE = '🤯'
 const WIN = '😎'
 const HEART = '💜'
+const HINT = '💡'
 // glabal variables
 var gIsGameOver
 var gBoard
 const gLevel = {
-    size: 4, mines: 2
+    SIZE: 4,
+    MINES: 2
 }
 var gFirstClickedCell
 var gMinesOnBoard
@@ -19,12 +21,14 @@ var gGame
 var gTimeId
 var gTime
 var gLivesLeft
+var gHintsLeft
 //elements
 var elBoard
 var resetBtn = document.querySelector('.reset-btn')
 var elTime = document.querySelector('.timer')
 var elMinesOnBoard = document.querySelector('.mines-on-board')
 var elLivesLeft = document.querySelector('.lives')
+var elHintsLeft = document.querySelector('.hints')
 setgGame()
 initGame()
 
@@ -32,14 +36,15 @@ function initGame() {
     gIsGameOver = false
     gLivesLeft = 3
     updateLivesLeft(gLivesLeft)
+    updateHintsLeft(gHintsLeft)
     gBoard = buildBoard(gLevel)
     gFirstClickedCell = null
     elBoard = document.querySelector('.board')
     renderBoard(gBoard, '.board')
     gFlagsOnBoardCount = 0
-    gMinesOnBoard = +gLevel.mines
+    gMinesOnBoard = +gLevel.MINES
     resetBtn.innerText = SMILE
-    elMinesOnBoard.innerText = gLevel.mines
+    elMinesOnBoard.innerText = gLevel.MINES
     gTime = 0
     elTime.innerText = gTime
     resetTimer()
@@ -49,12 +54,12 @@ function buildBoard(gLevel) {
     const genArr = []
     const board = []
     // create an array of various cells 
-    for (var i = 0; i < gLevel.size ** 2; i++) {
+    for (var i = 0; i < gLevel.SIZE ** 2; i++) {
         var cellData = {
             isShown: false,
-            isMine: i < gLevel.mines ? true : false,
+            isMine: i < gLevel.MINES ? true : false,
             isMarked: false,
-            minesAroundCount: null 
+            minesAroundCount: null
         }
 
         genArr.push(cellData)
@@ -69,7 +74,7 @@ function buildBoard(gLevel) {
         genArr[currentIndex] = genArr[randomIndex]
         genArr[randomIndex] = temporaryValue
     }
-    while (genArr.length) board.push(genArr.splice(0, gLevel.size))
+    while (genArr.length) board.push(genArr.splice(0, gLevel.SIZE))
     return board
 }
 
@@ -110,6 +115,13 @@ function updateLivesLeft(gLivesLeft) {
     elLivesLeft.innerText = strLives
 }
 
+function updateHintsLeft(gHintsLeft) {
+    var strHints = 'Hints:💡💡💡 '
+    for (var i = 0; i < gHintsLeft; i++) {
+        strHints += HINT
+    }
+    elHintsLeft.innerText = strHints
+}
 elBoard.addEventListener("contextmenu", (event) => {
 
     event.preventDefault()
@@ -134,6 +146,9 @@ function setMinesNeighborsCount(cellI, cellJ, board) {
     return neighborsCount
 }
 
+function isVictory(){
+    
+}
 function expandShown(board, elCell) {
     var cellI = elCell.dataset.i
     var cellJ = elCell.dataset.j
@@ -212,22 +227,19 @@ function GameOver(isOnMine) {
     }
 }
 function setHint() {
-    const elHint = document.querySelector('.hint')
+    const elHint = document.querySelector('.hints')
 
-    if (gGame.hintsCount <= 0 || !gGame.isOn || gGame.isMegaHint || gGame.isSafe) {
+    if (gGame.hintsCount <= 0 || !gGame.isOn ) {
         blockButtonUse(elHint, 'pop1')
         return
     }
-    if (!gGame.isManualMode && !gGame.isSevenBoom) {
-        if (gGame.shownCount === 0) {
-            blockButtonUse(elHint, 'pop1')
-            return
-        }
-    }
-
+    
     gGame.isHint = !gGame.isHint
     if (gGame.isHint) elHint.style.backgroundColor = '#cfcb4e'
     else elHint.style.backgroundColor = null
+}
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
 }
 
 function cellClicked(elCell) {
@@ -235,10 +247,10 @@ function cellClicked(elCell) {
     var elCellI = elCell.dataset.i
     var elCellJ = elCell.dataset.j
 
-    if(!gFirstClickedCell){
-        gFirstClickedCell = {i:elCellI , j:elCellJ}
-        if(gBoard[gFirstClickedCell.i][gFirstClickedCell.j].isMine){
-            getMines(gFirstClickedCell , gBoard)
+    if (!gFirstClickedCell) {
+        gFirstClickedCell = { i: elCellI, j: elCellJ }
+        if (gBoard[gFirstClickedCell.i][gFirstClickedCell.j].isMine) {
+            getMines(gFirstClickedCell, gBoard)
         }
     }
     if (gIsGameOver) return
@@ -255,7 +267,7 @@ function cellClicked(elCell) {
     if (gBoard[elCellI][elCellJ].isMine === true) {
         gBoard[elCellI][elCellJ].isShown = true
         elCell.innerText = BOMB
-       GameOver(gBoard[elCellI][elCellJ].isMine)
+        GameOver(gBoard[elCellI][elCellJ].isMine)
         return
     }
 
@@ -293,28 +305,5 @@ function cellMarked(elCell) {
     var minesOnBoardCount = +elMinesOnBoard.textContent
     elMinesOnBoard.innerText = gBoard[elCellI][elCellJ].isMarked ? minesOnBoardCount - 1 : minesOnBoardCount + 1
 
-   GameOver()
-}
-function setgGame() {
-    gGame = {
-        isOn: false,
-        isWin: false,
-        isSafe: false,
-        isHint: false,
-        isManualSet: false,
-        isManualMode: false,
-        isSevenBoom: false,
-        isMegaHint: false,
-        shownCount: 0,
-        markedCount: 0,
-        secsPassed: 0,
-        minesHits: 0,
-        minesLeft: 0,
-        livesCount: parseInt(gLevel.size / 4),
-        hintsCount: 3,
-        safeCount: 3,
-        megaHintsCount: 1,
-        terminateCount: 1,
-        steps: 0,
-    }
+    GameOver()
 }
