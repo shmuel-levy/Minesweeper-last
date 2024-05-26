@@ -12,12 +12,13 @@
 <body onload="initGame()">
     <div class="game">
         <h1>ציונה מוקשים</h1>
-        <img src="img/mines.png" />
+        <!-- <img src="img/mines.png" /> -->
         <div class="level-btns">
             <div class="level-btn" data-size="4" data-mines="2" onclick="setDifficulty(this)">מתחיל</div>
             <div class="level-btn" data-size="8" data-mines="12" onclick="setDifficulty(this)">בינוני</div>
             <div class="level-btn" data-size="12" data-mines="30" onclick="setDifficulty(this)">שימי תבורי</div>
         </div>
+        <button class="button-27" role="button" onclick="toggleDarkMode()">בעולם הזה קיימים 2 שולות</button>
         <div class="hud">
             <div>
                 <p>זמן שעבר : <span class="timer"> 0.00</span></p>
@@ -29,14 +30,8 @@
                 <p>מוקשים :<span class="mines-on-board"></span></p>
             </div>
         </div>
-        <button class="hint tooltip" onclick="setHint()">
-            <ion-icon name="bulb-outline"></ion-icon><br>
-            <h3 class="hint-left popup">left: <span>3</span>
-                <span class="popuptext" id="pop1">Can't use Hint right now</span>
-                <span class="tooltiptext">Hint</span>
-            </h3>
-        </button>
         <div class="lives hud"></div>
+        <div class="hints hud"></div>
         <table>
             <tbody class="board"></tbody>
         </table>
